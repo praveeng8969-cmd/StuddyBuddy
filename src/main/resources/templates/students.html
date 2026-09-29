@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy - Students</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand-logo">StudyBuddy</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/students}" class="active">Students</a></li>
+                <li><a th:href="@{/subjects}">Subjects</a></li>
+                <li><a th:href="@{/groups}">Study Groups</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Students</h1>
+            <p class="page-subtitle">Manage registered students for study group formation.</p>
+        </div>
+
+        <!-- Feedback Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <!-- Add Student Form -->
+        <div class="form-card">
+            <h2 class="form-title">Add New Student</h2>
+            <form th:action="@{/students}" th:object="${student}" method="post">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="studentName">Student Name</label>
+                        <input type="text" id="studentName" th:field="*{studentName}" class="form-control" placeholder="e.g. Praveen" required>
+                        <span th:if="${#fields.hasErrors('studentName')}" th:errors="*{studentName}" class="field-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="e.g. praveen@example.com" required>
+                        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="field-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="department">Department</label>
+                        <input type="text" id="department" th:field="*{department}" class="form-control" placeholder="e.g. Computer Science" required>
+                        <span th:if="${#fields.hasErrors('department')}" th:errors="*{department}" class="field-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="yearOfStudy">Year of Study</label>
+                        <input type="number" id="yearOfStudy" th:field="*{yearOfStudy}" min="1" max="5" class="form-control" placeholder="e.g. 2" required>
+                        <span th:if="${#fields.hasErrors('yearOfStudy')}" th:errors="*{yearOfStudy}" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary">Add Student</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Students Table -->
+        <h2 style="font-size: 1.25rem; color: #0f172a; margin-bottom: 1rem;">Registered Students</h2>
+
+        <div th:if="${#lists.isEmpty(students)}" class="empty-state">
+            <p>No students added yet.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(students)}" class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="s : ${students}">
+                        <td th:text="${s.id}">1</td>
+                        <td th:text="${s.studentName}">Praveen</td>
+                        <td th:text="${s.email}">praveen@example.com</td>
+                        <td th:text="${s.department}">Computer Science</td>
+                        <td th:text="${s.yearOfStudy}">2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

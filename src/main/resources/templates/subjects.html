@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy - Subjects</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand-logo">StudyBuddy</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/students}">Students</a></li>
+                <li><a th:href="@{/subjects}" class="active">Subjects</a></li>
+                <li><a th:href="@{/groups}">Study Groups</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Subjects</h1>
+            <p class="page-subtitle">Manage academic subjects available for study groups.</p>
+        </div>
+
+        <!-- Feedback Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <!-- Add Subject Form -->
+        <div class="form-card">
+            <h2 class="form-title">Add New Subject</h2>
+            <form th:action="@{/subjects}" th:object="${subject}" method="post">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="subjectName">Subject Name</label>
+                        <input type="text" id="subjectName" th:field="*{subjectName}" class="form-control" placeholder="e.g. Database Management Systems" required>
+                        <span th:if="${#fields.hasErrors('subjectName')}" th:errors="*{subjectName}" class="field-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="subjectCode">Subject Code</label>
+                        <input type="text" id="subjectCode" th:field="*{subjectCode}" class="form-control" placeholder="e.g. DBMS" required>
+                        <span th:if="${#fields.hasErrors('subjectCode')}" th:errors="*{subjectCode}" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary">Add Subject</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Subjects List -->
+        <h2 style="font-size: 1.25rem; color: #0f172a; margin-bottom: 1rem;">Available Subjects</h2>
+
+        <div th:if="${#lists.isEmpty(subjects)}" class="empty-state">
+            <p>No subjects added yet.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(subjects)}" class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Subject Name</th>
+                        <th>Subject Code</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="sub : ${subjects}">
+                        <td th:text="${sub.id}">1</td>
+                        <td th:text="${sub.subjectName}">Database Management Systems</td>
+                        <td><strong th:text="${sub.subjectCode}">DBMS</strong></td>
+                        <td>
+                            <a th:href="@{/groups(subjectId=${sub.id})}" class="btn btn-secondary btn-sm">View Groups</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

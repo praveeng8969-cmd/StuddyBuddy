@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy - Error</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand-logo">StudyBuddy</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/students}">Students</a></li>
+                <li><a th:href="@{/subjects}">Subjects</a></li>
+                <li><a th:href="@{/groups}">Study Groups</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 600px; text-align: center; margin-top: 4rem;">
+        <div class="form-card" style="padding: 2.5rem 1.5rem;">
+            <h1 style="color: #dc2626; font-size: 1.75rem; margin-bottom: 1rem;">Notice</h1>
+            <p style="color: #475569; font-size: 1.05rem; margin-bottom: 2rem;" th:text="${errorMessage != null ? errorMessage : 'An error occurred while processing your request.'}">
+                An error occurred.
+            </p>
+            <a th:href="@{/}" class="btn btn-primary">Return to Home</a>
+        </div>
+    </div>
+</body>
+</html>

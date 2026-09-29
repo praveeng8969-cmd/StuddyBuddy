@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'StudyBuddy - ' + ${group.groupName}">Study Group Details</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand-logo">StudyBuddy</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/students}">Students</a></li>
+                <li><a th:href="@{/subjects}">Subjects</a></li>
+                <li><a th:href="@{/groups}" class="active">Study Groups</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Back Navigation & Header -->
+        <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <a th:href="@{/groups}" class="btn btn-secondary btn-sm">&larr; Back to Groups</a>
+        </div>
+
+        <!-- Feedback Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <!-- Group Overview Card -->
+        <div class="form-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h1 class="page-title" style="margin-bottom: 0;" th:text="${group.groupName}">Group Name</h1>
+                <div>
+                    <span th:if="${!isFull}" class="badge badge-available" style="font-size: 0.9rem; padding: 0.35rem 0.8rem;">Available</span>
+                    <span th:if="${isFull}" class="badge badge-full" style="font-size: 0.9rem; padding: 0.35rem 0.8rem;">Full</span>
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Subject</div>
+                    <div class="detail-value" th:text="${group.subject.subjectName} + ' (' + ${group.subject.subjectCode} + ')'">Subject</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Creator</div>
+                    <div class="detail-value" th:text="${group.creator.studentName}">Creator</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Members</div>
+                    <div class="detail-value" th:text="${currentMembers} + ' / ' + ${group.maxMembers}">0 / 5</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Created Date</div>
+                    <div class="detail-value" th:text="${group.createdDate}">2026-09-28</div>
+                </div>
+            </div>
+
+            <div>
+                <strong style="color: #334155; font-size: 0.9rem; text-transform: uppercase;">Description:</strong>
+                <p style="color: #475569; margin-top: 0.35rem;" th:text="${group.description != null && !group.description.isEmpty() ? group.description : 'No description provided.'}">
+                    Description goes here.
+                </p>
+            </div>
+        </div>
+
+        <!-- Join this Group Section -->
+        <div class="form-card" style="border-left: 4px solid #2563eb;">
+            <h2 class="form-title" style="margin-bottom: 0.5rem;">Join this Group</h2>
+            <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1.25rem;">Select a student from the dropdown to join this study group.</p>
+
+            <div th:if="${#lists.isEmpty(allStudents)}" class="alert alert-danger" style="margin-bottom: 0;">
+                No registered students found. Please <a th:href="@{/students}">add a student</a> first.
+            </div>
+
+            <form th:if="${!#lists.isEmpty(allStudents)}" th:action="@{'/groups/' + ${group.id} + '/join'}" method="post" class="form-inline">
+                <select name="studentId" class="form-control" style="width: auto; min-width: 280px;" required>
+                    <option value="">-- Select Student to Join --</option>
+                    <option th:each="std : ${allStudents}"
+                            th:value="${std.id}"
+                            th:text="${std.studentName} + ' (' + ${std.email} + ')'">
+                        Student Name
+                    </option>
+                </select>
+                <button type="submit" class="btn btn-primary">Join Group</button>
+            </form>
+        </div>
+
+        <!-- Current Members Table -->
+        <div style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; color: #0f172a; margin-bottom: 1rem;">
+                Group Members (<span th:text="${currentMembers}">0</span>)
+            </h2>
+
+            <div th:if="${#lists.isEmpty(memberships)}" class="empty-state">
+                <p>No members have joined this group yet.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(memberships)}" class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Joined At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="m : ${memberships}">
+                            <td th:text="${m.student.studentName}">Student Name</td>
+                            <td th:text="${m.student.email}">student@example.com</td>
+                            <td th:text="${m.student.department}">Computer Science</td>
+                            <td th:text="${m.joinedAt != null ? #temporals.format(m.joinedAt, 'dd-MMM-yyyy HH:mm') : '-'}">Date</td>
+                            <td>
+                                <!-- Individual Student Leave Form -->
+                                <form th:action="@{'/groups/' + ${group.id} + '/leave'}" method="post" style="display: inline;">
+                                    <input type="hidden" name="studentId" th:value="${m.student.id}">
+                                    <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Are you sure you want to leave this group?')">
+                                        Leave Group
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Creator Member Removal Section -->
+        <div th:if="${!#lists.isEmpty(memberships)}" class="form-card" style="border-left: 4px solid #dc2626; background: #fffdfd;">
+            <h2 class="form-title" style="color: #991b1b; margin-bottom: 0.35rem;">Creator Member Removal</h2>
+            <p style="font-size: 0.88rem; color: #64748b; margin-bottom: 1rem;">
+                Business Rule Test: Only the group creator (<strong><span th:text="${group.creator.studentName}">Creator</span></strong>) can remove a member.
+            </p>
+
+            <form th:action="@{'/groups/' + ${group.id} + '/remove'}" method="post" class="form-inline">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Requester Student:</label>
+                    <select name="requesterId" class="form-control" style="width: auto; min-width: 220px;" required>
+                        <option value="">-- Select Requester --</option>
+                        <option th:each="std : ${allStudents}"
+                                th:value="${std.id}"
+                                th:text="${std.studentName} + (${std.id == group.creator.id} ? ' (Creator)' : '')">
+                            Requester
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Member to Remove:</label>
+                    <select name="memberStudentId" class="form-control" style="width: auto; min-width: 220px;" required>
+                        <option value="">-- Select Member --</option>
+                        <option th:each="m : ${memberships}"
+                                th:value="${m.student.id}"
+                                th:text="${m.student.studentName}">
+                            Member
+                        </option>
+                    </select>
+                </div>
+
+                <div style="align-self: flex-end;">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this member?')">
+                        Remove Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

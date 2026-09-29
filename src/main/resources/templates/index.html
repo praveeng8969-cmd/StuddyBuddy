@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy - Home</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand-logo">StudyBuddy</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}" class="active">Home</a></li>
+                <li><a th:href="@{/students}">Students</a></li>
+                <li><a th:href="@{/subjects}">Subjects</a></li>
+                <li><a th:href="@{/groups}">Study Groups</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">StudyBuddy</h1>
+            <p class="page-subtitle">Find the right study group. Learn together.</p>
+        </div>
+
+        <!-- 3 Dashboard Count Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Students</h3>
+                <div class="stat-number" th:text="${studentCount}">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Subjects</h3>
+                <div class="stat-number" th:text="${subjectCount}">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Study Groups</h3>
+                <div class="stat-number" th:text="${groupCount}">0</div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h2 style="font-size: 1.35rem; color: #0f172a;">Available Study Groups</h2>
+            <a th:href="@{/groups/create}" class="btn btn-primary btn-sm">+ Create Study Group</a>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(groups)}" class="empty-state">
+            <p>No study groups available.</p>
+        </div>
+
+        <!-- Group Cards Grid -->
+        <div th:unless="${#lists.isEmpty(groups)}" class="card-grid">
+            <div th:each="group : ${groups}" class="card">
+                <div>
+                    <h3 class="card-title" th:text="${group.groupName}">Group Name</h3>
+                    <p class="card-meta">
+                        <strong>Subject:</strong> <span th:text="${group.subject.subjectName}">Subject</span>
+                    </p>
+                    <p class="card-meta">
+                        <strong>Creator:</strong> <span th:text="${group.creator.studentName}">Creator</span>
+                    </p>
+                    <p class="card-meta">
+                        <strong>Members:</strong>
+                        <span th:text="${memberCounts[group.id]} + ' / ' + ${group.maxMembers}">0 / 5</span>
+                    </p>
+                    <p class="card-desc" th:text="${group.description != null && !group.description.isEmpty() ? group.description : 'No description provided.'}">
+                        Description
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <span th:if="${memberCounts[group.id] < group.maxMembers}" class="badge badge-available">Available</span>
+                    <span th:unless="${memberCounts[group.id] < group.maxMembers}" class="badge badge-full">Full</span>
+                    <a th:href="@{'/groups/' + ${group.id}}" class="btn btn-secondary btn-sm">View Group</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

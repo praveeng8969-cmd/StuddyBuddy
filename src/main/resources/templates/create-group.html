@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy - Create Study Group</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand-logo">StudyBuddy</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/students}">Students</a></li>
+                <li><a th:href="@{/subjects}">Subjects</a></li>
+                <li><a th:href="@{/groups}" class="active">Study Groups</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 650px;">
+        <div class="page-header">
+            <h1 class="page-title">Create Study Group</h1>
+            <p class="page-subtitle">Form a new subject-wise study group with a member limit.</p>
+        </div>
+
+        <!-- Feedback Alerts -->
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <!-- Check if Subjects or Students are missing -->
+        <div th:if="${#lists.isEmpty(subjects)}" class="alert alert-danger">
+            Please <a th:href="@{/subjects}">add at least one Subject</a> before creating a study group.
+        </div>
+        <div th:if="${#lists.isEmpty(students)}" class="alert alert-danger">
+            Please <a th:href="@{/students}">add at least one Student</a> to be the group creator.
+        </div>
+
+        <div th:if="${!#lists.isEmpty(subjects) and !#lists.isEmpty(students)}" class="form-card">
+            <form th:action="@{/groups/create}" method="post">
+                <div class="form-group">
+                    <label class="form-label" for="groupName">Group Name</label>
+                    <input type="text" id="groupName" name="groupName" class="form-control" placeholder="e.g. DBMS Exam Revision" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="subjectId">Subject</label>
+                    <select id="subjectId" name="subjectId" class="form-control" required>
+                        <option value="">-- Select Subject --</option>
+                        <option th:each="sub : ${subjects}"
+                                th:value="${sub.id}"
+                                th:text="${sub.subjectName} + ' (' + ${sub.subjectCode} + ')'">
+                            Subject
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="creatorId">Group Creator (Student)</label>
+                    <select id="creatorId" name="creatorId" class="form-control" required>
+                        <option value="">-- Select Creator Student --</option>
+                        <option th:each="std : ${students}"
+                                th:value="${std.id}"
+                                th:text="${std.studentName} + ' (' + ${std.department} + ', Year ' + ${std.yearOfStudy} + ')'">
+                            Student Name
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="maxMembers">Maximum Members</label>
+                    <input type="number" id="maxMembers" name="maxMembers" class="form-control" min="1" max="100" value="5" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea id="description" name="description" class="form-control" rows="3" placeholder="e.g. Preparing DBMS Unit 1 and Unit 2."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary">Create Study Group</button>
+                    <a th:href="@{/groups}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
